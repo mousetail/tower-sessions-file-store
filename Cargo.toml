@@ -7,10 +7,12 @@ license = "MIT"
 keywords = ["axum", "sessions", "cookie", "tower"]
 categories = ["asynchronous", "network-programming", "web-programming"]
 repository = "https://github.com/mousetail/tower-sessions-file-store"
+documentation = "https://docs.rs/tower-sessions-file-store"
 readme = "./readme.md"
 
 [dependencies]
 async-trait = "0.1.83"
 serde_json = "1.0.132"
+time = "0.3.36"
 tokio = { version = "1.41.0", features = ["fs"] }
-tower-sessions = "0.13.0"
+tower-sessions-core = { version = "0.13.0", features = ["deletion-task"] }

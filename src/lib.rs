@@ -1,3 +1,25 @@
+//! # Overview
+//!
+//! A session storage that stores each session in a seperate file in a special folder (default ".sessions")
+//!
+//! Useful when you want something more persistant than a in memory store but don't want to setup an entire database, especially
+//! during local development. Should work fine in production environments though.
+//!
+//! # Expiry
+//!
+//! You can enable automatically deleting expired sessions like this:
+//!
+//! ```rs
+//! let deletion_task = tokio::task::spawn(
+//!     session_store
+//!     .clone()
+//!     .continuously_delete_expired(tokio::time::Duration::from_secs(60)),
+//! );
+//! ```
+//!
+//! By default, it will only load sessions to check their expirty if the last modified date of the file is at least 60 seconds. You can adjust this with
+//! `set_minimum_expiry_date`. Ideally the expiry date would be the same as the duration of your sessions.
+
 use std::{
     borrow::Cow,
     fs::OpenOptions,
@@ -7,13 +29,17 @@ use std::{
 };
 
 use async_trait::async_trait;
+use time::OffsetDateTime;
 use tokio::fs::remove_file;
-use tower_sessions::{
-    cookie::time::OffsetDateTime,
+use tower_sessions_core::{
     session::{Id, Record},
     session_store, ExpiredDeletion, SessionStore,
 };
 
+/// A Session storage that stores each session, JSON encoded, on the local disk.
+///
+/// In production, you may want to put this behind a [`MemoryStore`](https://docs.rs/tower-sessions/latest/tower_sessions/struct.MemoryStore.html)
+/// for performance.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct FileSessionStorage {
     folder_name: Cow<'static, Path>,
@@ -27,10 +53,12 @@ impl Default for FileSessionStorage {
 }
 
 impl FileSessionStorage {
+    /// Create a new `FileSessionStore`` in the folder ".sessions"
     pub fn new() -> FileSessionStorage {
         FileSessionStorage::new_in_folder(Path::new(".sessions"))
     }
 
+    /// Create a new `FileSessionStore` with sessions placed in the given folder.
     pub fn new_in_folder(folder: impl Into<Cow<'static, Path>>) -> Self {
         FileSessionStorage {
             folder_name: folder.into(),
