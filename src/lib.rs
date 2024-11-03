@@ -20,6 +20,12 @@ pub struct FileSessionStorage {
     minimum_expiry_date: Duration,
 }
 
+impl Default for FileSessionStorage {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl FileSessionStorage {
     pub fn new() -> FileSessionStorage {
         FileSessionStorage::new_in_folder(Path::new(".sessions"))
@@ -36,7 +42,7 @@ impl FileSessionStorage {
     /// The minimum expiry time sets the minimum age of a file before attempting to open it.
     pub fn set_minimum_expiry_date(mut self, duration: Duration) -> Self {
         self.minimum_expiry_date = duration;
-        return self;
+        self
     }
 }
 
@@ -50,7 +56,7 @@ impl SessionStore for FileSessionStorage {
         let file = OpenOptions::new()
             .create_new(true)
             .write(true)
-            .open(self.folder_name.to_owned().join(record.id.to_string()))
+            .open(self.folder_name.join(record.id.to_string()))
             .map_err(|_| session_store::Error::Backend("Failed to open file".to_string()))?;
         serde_json::to_writer(file, &record)
             .map_err(|_| session_store::Error::Backend("Failed to serialize/decode".to_string()))?;
@@ -62,7 +68,7 @@ impl SessionStore for FileSessionStorage {
         let file = OpenOptions::new()
             .write(true)
             .truncate(true)
-            .open(self.folder_name.to_owned().join(record.id.to_string()))
+            .open(self.folder_name.join(record.id.to_string()))
             .map_err(|_| session_store::Error::Backend("Failed to open file".to_string()))?;
         serde_json::to_writer(file, &record)
             .map_err(|_| session_store::Error::Backend("Failed to serialize/decode".to_string()))?;
@@ -72,7 +78,7 @@ impl SessionStore for FileSessionStorage {
     async fn load(&self, session_id: &Id) -> session_store::Result<Option<Record>> {
         let file = OpenOptions::new()
             .read(true)
-            .open(self.folder_name.to_owned().join(session_id.to_string()))
+            .open(self.folder_name.join(session_id.to_string()))
             .map_err(|_| session_store::Error::Backend("Failed to open file".to_string()))?;
         let out = serde_json::from_reader(file)
             .map_err(|_| session_store::Error::Backend("Failed to serialize/decode".to_string()))?;
@@ -81,7 +87,7 @@ impl SessionStore for FileSessionStorage {
     }
 
     async fn delete(&self, session_id: &Id) -> session_store::Result<()> {
-        remove_file(self.folder_name.to_owned().join(session_id.to_string()))
+        remove_file(self.folder_name.join(session_id.to_string()))
             .await
             .map_err(|_| session_store::Error::Backend("Failed to Delete".to_string()))?;
         Ok(())
