@@ -517,7 +517,7 @@ dependencies = [
 
 [[package]]
 name = "tower-sessions-file-store"
-version = "0.1.1"
+version = "0.1.2"
 dependencies = [
  "async-trait",
  "serde_json",

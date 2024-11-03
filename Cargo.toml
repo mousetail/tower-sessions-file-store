@@ -1,6 +1,6 @@
 [package]
 name = "tower-sessions-file-store"
-version = "0.1.1"
+version = "0.1.2"
 edition = "2021"
 description = "Store sessions for Tower Session store on the file system"
 license = "MIT"

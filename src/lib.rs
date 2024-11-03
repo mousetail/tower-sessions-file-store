@@ -104,9 +104,13 @@ impl SessionStore for FileSessionStorage {
     }
 
     async fn load(&self, session_id: &Id) -> session_store::Result<Option<Record>> {
+        let path = self.folder_name.join(session_id.to_string());
+        if !path.is_file() {
+            return Ok(None);
+        }
         let file = OpenOptions::new()
             .read(true)
-            .open(self.folder_name.join(session_id.to_string()))
+            .open(path)
             .map_err(|_| session_store::Error::Backend("Failed to open file".to_string()))?;
         let out = serde_json::from_reader(file)
             .map_err(|_| session_store::Error::Backend("Failed to serialize/decode".to_string()))?;
@@ -159,7 +163,7 @@ impl ExpiredDeletion for FileSessionStorage {
             let Some(session) = self.load(&session_id).await? else {
                 continue;
             };
-            if session.expiry_date > OffsetDateTime::now_utc() {
+            if OffsetDateTime::now_utc() > session.expiry_date {
                 self.delete(&session_id).await?;
             }
         }
