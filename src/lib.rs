@@ -119,9 +119,17 @@ impl SessionStore for FileSessionStorage {
     }
 
     async fn delete(&self, session_id: &Id) -> session_store::Result<()> {
-        remove_file(self.folder_name.join(session_id.to_string()))
-            .await
-            .map_err(|_| session_store::Error::Backend("Failed to Delete".to_string()))?;
+        let res = remove_file(self.folder_name.join(session_id.to_string())).await;
+        match res {
+            Ok(_) => {}
+            Err(e) => {
+                if e.kind() != std::io::ErrorKind::NotFound {
+                    return Err(session_store::Error::Backend(
+                        "Failed to Delete".to_string(),
+                    ));
+                }
+            }
+        }
         Ok(())
     }
 }
