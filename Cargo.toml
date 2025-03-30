@@ -1,7 +1,7 @@
 [package]
 name = "tower-sessions-file-store"
 version = "0.2.0"
-edition = "2021"
+edition = "2024"
 description = "Store sessions for Tower Session store on the file system"
 license = "MIT"
 keywords = ["axum", "sessions", "cookie", "tower"]
