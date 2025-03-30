@@ -32,8 +32,9 @@ use async_trait::async_trait;
 use time::OffsetDateTime;
 use tokio::fs::remove_file;
 use tower_sessions_core::{
+    ExpiredDeletion, SessionStore,
     session::{Id, Record},
-    session_store, ExpiredDeletion, SessionStore,
+    session_store,
 };
 
 /// A Session storage that stores each session, JSON encoded, on the local disk.
