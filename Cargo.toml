@@ -15,4 +15,4 @@ async-trait = "0.1.83"
 serde_json = "1.0.132"
 time = "0.3.36"
 tokio = { version = "1.41.0", features = ["fs"] }
-tower-sessions-core = { version = "0.14.0", features = ["deletion-task"] }
+tower-sessions-core = { version = "0.15.0", features = ["deletion-task"] }
